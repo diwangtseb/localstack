@@ -207,6 +207,15 @@ jobs:
       - store_artifacts:
           path: htmlcov/
 
+  notify:
+    docker:
+      - image: buildpack-deps:focal
+    steps:
+      - run:
+          name: Show env
+          command: env
+      - slack/notify
+
   docker-push:
     machine:
       image: ubuntu-2004:202101-01
@@ -228,29 +237,30 @@ jobs:
 workflows:
   main:
     jobs:
-      - install
-      - preflight:
-          requires:
-            - install
-      - itest-lambda-docker:
-          requires:
-            - preflight
-      - itest-elasticmq:
-          requires:
-            - preflight
-      - docker-build:
-          requires:
-            - preflight
-      - report:
-          requires:
-            - itest-lambda-docker
-            - itest-elasticmq
-            - docker-build
-      - docker-push:
-          filters:
-            branches:
-              only: master
-          requires:
-            - itest-lambda-docker
-            - itest-elasticmq
-            - docker-build
+      - notify
+#      - install
+#      - preflight:
+#          requires:
+#            - install
+#      - itest-lambda-docker:
+#          requires:
+#            - preflight
+#      - itest-elasticmq:
+#          requires:
+#            - preflight
+#      - docker-build:
+#          requires:
+#            - preflight
+#      - report:
+#          requires:
+#            - itest-lambda-docker
+#            - itest-elasticmq
+#            - docker-build
+#      - docker-push:
+#          filters:
+#            branches:
+#              only: master
+#          requires:
+#            - itest-lambda-docker
+#            - itest-elasticmq
+#            - docker-build
